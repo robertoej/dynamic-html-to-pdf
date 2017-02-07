@@ -8,22 +8,16 @@
 	<name>dynamic-html-to-pdf</name>
 	<description>Converts (iText) dynamic HTML (Apache Velocity) to PDF.</description>
 	<dependencies>
-	<dependency>
-		<groupId>com.itextpdf</groupId>
-			<artifactId>itextpdf</artifactId>
-			<version>5.4.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.itextpdf.tool</groupId>
-			<artifactId>xmlworker</artifactId>
-			<version>5.4.1</version>
-		</dependency>
-		
 		<dependency>
 		    <groupId>org.apache.velocity</groupId>
 		    <artifactId>velocity</artifactId>
 		    <version>1.7</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.xhtmlrenderer</groupId>
+		    <artifactId>flying-saucer-pdf</artifactId>
+		    <version>9.1.1</version>
 		</dependency>
 	</dependencies>
 	

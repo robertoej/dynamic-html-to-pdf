@@ -1,12 +1,10 @@
 package br.com.htmltopdf;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,11 +13,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 public class App {
 	private static App INSTANCE = new App();
@@ -30,12 +24,12 @@ public class App {
 		return INSTANCE;
 	}
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException, DocumentException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, com.lowagie.text.DocumentException {
 		Map<String, String> params = new HashMap<>();
 		params.put("name", "Stranger");
 		params.put("imgSrc", App.getInstance().getResourceAbsoluteFilePath("i-am-a-programmer.jpg"));
 		
-		App.getInstance().generatePDF("helloworld.html", "style.css", params);
+		App.getInstance().generatePDF("helloworld.html", params);
 	}
 	
 	private VelocityEngine initVelocityEngine() {
@@ -66,27 +60,20 @@ public class App {
 	}
 
 	
-	public void generatePDF(String htmlTemplateName, String cssName, Map<String, String> params) throws IOException, DocumentException {
-		
+	public void generatePDF(String htmlTemplateName, Map<String, String> params) throws com.lowagie.text.DocumentException, IOException {
 		StringWriter stringWriter = getTemplateStringWriter(htmlTemplateName, params);
 
 		String htmlContent = stringWriter.toString();
 		
-		String cssContent = new String(Files.readAllBytes(Paths.get(getResourceAbsoluteFilePath(cssName))));
-		
-		Document document = new Document();
+		OutputStream out = new FileOutputStream("generated.pdf");
 
-		PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream("generated.pdf"));
+		ITextRenderer renderer = new ITextRenderer();
 
-		document.open();
+		renderer.setDocumentFromString(htmlContent);
+		renderer.layout();
+		renderer.createPDF(out);
 
-		ByteArrayInputStream bis = new ByteArrayInputStream(htmlContent.toString().getBytes());
-		
-		ByteArrayInputStream cis = new ByteArrayInputStream(cssContent.toString().getBytes());
-		
-		XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document, bis, cis);
-		
-		document.close();
+		out.close();
 	}
 	
 	public String getResourceAbsoluteFilePath(String resourceName) {
